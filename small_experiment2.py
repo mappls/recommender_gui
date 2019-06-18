@@ -28,7 +28,6 @@ recs = m.recommend(users=['misko'],
                    )
 print(recs)
 
-
 preds = m.predict(dataset=tc.SFrame({'user_id': ["misko", "misko", "misko", "misko"], 'item_id': ITEM_LIST}),
                   new_observation_data=tc.SFrame({'user_id': ["misko"], 'item_id': ["a"]}))
 for pred, item in zip(preds, ITEM_LIST):
