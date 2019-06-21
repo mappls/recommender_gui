@@ -1,62 +1,32 @@
 
 import tkinter as tk
 from tkinter import ttk
+from classes import MyCanvas, MyImage
 import os
-import time
+
+CANVAS_WIDTH = 900
+CANVAS_HEIGHT = 560
+IMG_WIDTH = 30
+IMG_HEIGHT = 30
+
 
 gui = tk.Tk()
-# gui.geometry("900x600")
+gui.geometry("902x600")
 gui.title("Recommender GUI")
 gui.resizable(0, 0)
 
+# ----- Canvas -----
 
-class MyCanvas(tk.Canvas):
-
-    def __init__(self, master, **kwargs):
-        super().__init__(master=master, **kwargs)
-        self.images = []
-        self.images_list = None
-        self.img1 = None
-        self.img2 = None
-        self.gui = master
-
-    def add_image(self, img_path):
-        img_ = tk.PhotoImage(file=img_path)
-        self.img1 = img_.subsample(10)
-        self.img2 = self.create_image(50, 50, image=self.img1)
-        # self.gui.update()
-        # self.move(a, 50, 50)
-        # self.images.append(self.create_image(100, 150, image=img_))
-        # self.create_rectangle(25, 25, 50, 180, fill='purple', outline='purple')
-        # self.create_text(img_label)
-
-    def move_image(self):
-        for i in range(10):
-            print("move", i)
-            self._move_image(i)
-            self.gui.update()
-            time.sleep(0.1)
-
-    def _move_image(self, x):
-        self.move(self.img2, x, 0)
-        # self.move(self.images[1], x, 0)
-
-
-# Add canvas
-canvas = MyCanvas(gui, height=500, width=600, background='gray')
-canvas.grid(column=1, row=2)
-canvas.add_image(img_path=r"images/shoes_01.ppm")
-
-# img_ = tk.PhotoImage(file="images/shoes_01.ppm")
-# img_ = img_.subsample(10)
-# canvas.create_image(50, 50, image=img_)
-# canvas.create_text(150, 150, text='yo yo')
+canvas = MyCanvas(gui, height=CANVAS_HEIGHT, width=CANVAS_WIDTH, background='gray')
+canvas.grid(row=2, column=0, columnspan=3)
+for i, filename in enumerate(os.listdir('images/raw/')):
+    canvas.add_image(img_path=r"images/raw/%s" % filename, id_=i)
 
 
 # ----- Disliking product -----
 
 dislike_frame = ttk.LabelFrame(gui, text='Dislike product')
-dislike_frame.grid(column=0, row=0)
+dislike_frame.grid(column=0, row=0, sticky=tk.W)
 
 dislike_label = ttk.Label(dislike_frame, text="Product ID:")
 dislike_label.grid(column=0, row=0)
@@ -92,15 +62,34 @@ like_id.grid(column=1, row=0)
 
 
 def like_action():
-    text = dislike_id.get().strip()
-    like_id.delete(0, tk.END)
-    # Todo: move image to right
-    canvas.move_image()
+    id_ = like_id.get()
+    # id_ = int(like_id.get().strip())
+    if id_:
+        id_ = int(id_.strip())
+        like_id.delete(0, tk.END)
+        canvas.mv_image = canvas.images[0]
+        canvas.move_image(id_)
+
     # Todo: retrain recommender model
 
 
 like_btn = ttk.Button(like_frame, text='Like', command=like_action)
 like_btn.grid(column=2, row=0)
+
+# ----- Lines -----
+
+line_dislike = canvas.create_line(120, 0, 120, 560, fill='tomato2', dash='-', width=2)
+line_like = canvas.create_line(780, 0, 780, 560, fill='lightgreen', dash='-', width=2)
+
+# ----- Train  -----
+
+
+def train():
+    pass
+
+
+train_btn = ttk.Button(gui, text='Train Recommender', command=train)
+train_btn.grid(column=1, row=0)
 
 gui.mainloop()
 
